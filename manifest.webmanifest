@@ -1,0 +1,18 @@
+{
+  "name": "締付けトルク計算機",
+  "short_name": "締付けトルク",
+  "description": "ボルトのねじ・強度区分・摩擦係数から、VDI 2230 の方法で推奨締付けトルクと締付け軸力を求める",
+  "lang": "ja",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eef1f4",
+  "theme_color": "#1d5c96",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
