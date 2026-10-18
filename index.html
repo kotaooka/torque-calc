@@ -176,6 +176,16 @@ table.tq tbody tr.cur { background: var(--accent-weak); }
 table.tq td.na { color: var(--muted); }
 .kpi .main { grid-column: span 1; }
 .kpi .main b { font-size: 1.5rem; color: var(--accent); }
+/* スマホ用の要約：狭い画面だけ、入力の途中に推奨トルクを出す */
+.sum { display: none; }
+@media (max-width: 760px) {
+  .sum:not(:empty) { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 12px; background: var(--accent-weak); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 16px; }
+  .sum .lab { grid-column: 1 / -1; font-size: .78rem; color: var(--ink2); }
+  .sum b { font: 500 1.6rem var(--f-num); color: var(--accent); font-variant-numeric: tabular-nums; }
+  .sum b small { font-family: var(--f-ui); font-size: .8rem; color: var(--muted); }
+  .sum .sub { grid-column: 1 / -1; font-size: .8rem; color: var(--ink2); }
+  .sum .more { grid-row: 2; grid-column: 2; font-size: .82rem; color: var(--accent); }
+}
 .kpi > div > small { display: block; line-height: 1.4; margin-top: 2px; }
 .kpi b small { font-family: var(--f-ui); font-size: .72rem; color: var(--muted); margin-left: 2px; }
 
@@ -217,6 +227,7 @@ table.tq td.na { color: var(--muted); }
         </div>
         <p class="privacy">データはこの端末の中だけで計算し、外部に送信しません。入力は自動でこの端末に保存します。</p>
       </div>
+      <div class="sum" id="cSum" aria-live="polite"></div>
       <div class="box">
         <h2>座面とボルト穴</h2>
         <div class="fields">
@@ -246,7 +257,10 @@ table.tq td.na { color: var(--muted); }
     </div>
     <div class="col">
       <div class="box">
-        <h2 id="cTitle">推奨締付けトルク</h2>
+        <div class="row" style="justify-content:space-between">
+          <h2 id="cTitle">推奨締付けトルク</h2>
+          <div class="seg" id="cUnit" role="group" aria-label="単位"><button type="button" data-v="Nm" aria-pressed="true">N·m・kN</button><button type="button" data-v="kgfcm" aria-pressed="false">kgf·cm</button><button type="button" data-v="kgfm" aria-pressed="false">kgf·m</button></div>
+        </div>
         <div class="kpi" id="cKpi"></div>
         <div class="msgs" id="cMsgs"></div>
       </div>
@@ -277,8 +291,9 @@ table.tq td.na { color: var(--muted); }
         <div class="row" style="justify-content:space-between">
           <h2 id="tTitle">トルク表</h2>
           <div class="row">
-            <div class="seg" id="tKind" role="group" aria-label="表に出す値"><button type="button" data-v="M" aria-pressed="true">締付けトルク [N·m]</button><button type="button" data-v="F" aria-pressed="false">締付け軸力 [kN]</button></div>
+            <div class="seg" id="tKind" role="group" aria-label="表に出す値"><button type="button" data-v="M" aria-pressed="true">締付けトルク</button><button type="button" data-v="F" aria-pressed="false">締付け軸力</button></div>
             <div class="seg" id="tSeries" role="group" aria-label="ねじの種類"><button type="button" data-v="coarse" aria-pressed="true">並目</button><button type="button" data-v="fine" aria-pressed="false">細目</button></div>
+            <div class="seg" id="tUnit" role="group" aria-label="単位"><button type="button" data-v="Nm" aria-pressed="true">N·m・kN</button><button type="button" data-v="kgfcm" aria-pressed="false">kgf·cm</button><button type="button" data-v="kgfm" aria-pressed="false">kgf·m</button></div>
           </div>
         </div>
         <div class="fields three">
@@ -287,7 +302,7 @@ table.tq td.na { color: var(--muted); }
           <div class="field"><label for="tNu">降伏点の利用率 ν [%]</label><input type="text" id="tNu" inputmode="decimal"></div>
         </div>
         <div class="scroll" id="tTable"></div>
-        <p class="hint">六角ボルト（ISO 4014・4017）の座面で、ねじ面と座面の摩擦係数を同じ値（列の μ）にしたときの値です。行を押すと、そのねじで「計算」タブを開きます。</p>
+        <p class="hint">六角ボルト（ISO 4014・4017）の座面で、ねじ面と座面の摩擦係数を同じ値（列の μ）にしたときの値です。kgf は 1 kgf = 9.80665 N で換算しています。行を押すと、そのねじで「計算」タブを開きます。</p>
         <div class="row"><button class="btn" type="button" id="tCopy">表をコピー（Excel 用）</button></div>
       </div>
     </div>
@@ -304,6 +319,7 @@ table.tq td.na { color: var(--muted); }
 <li>摩擦係数が最小のとき、締付けで生じる引張り応力とねじり応力を合わせた相当応力が、降伏点の ν 倍になる軸力を求めます。これが<strong>許容締付け軸力</strong> FMzul です</li>
 <li>摩擦係数が最小のまま、FMzul を出すのに必要なトルクを求めます。これが<strong>推奨締付けトルク</strong> MA です</li>
 </ol>
+<p>摩擦係数の初期値 0.12 は、メーカーのトルク表の多くと同じ「μ を 1 つに決めた」値です。範囲を入れると推奨トルクは最小の μ で決まるので、範囲の下限を下げるほど推奨トルクも下がります。</p>
 <p>摩擦係数の最小で決めるのは、同じトルクでも摩擦が小さいほど軸力が大きくなり、降伏に近づくからです。摩擦が大きい側では、同じトルクで軸力が小さくなります（下の「軸力の範囲」）。</p>
 <h3>許容締付け軸力</h3>
 <pre><code>FMzul = As × ν × Rp ÷ √(1 + 3 × [1.5 × (d2 ÷ dS) × (P ÷ (π × d2) + 1.155 × μG)]²)
@@ -379,6 +395,8 @@ table.tq td.na { color: var(--muted); }
 <li><strong>上限を推奨トルクに</strong>：狙い値を MA ÷（1 + ばらつき）に下げます。上にばらついても ν を超えませんが、軸力の下限も下がります</li>
 </ul>
 <p>トルクのばらつきは、締付け工具の精度（トルクレンチの JIS B 4650 / ISO 6789 の許容差、ナットランナーの工程能力）を入れてください。</p>
+<h2>単位</h2>
+<p>トルクは N·m・kgf·cm・kgf·m、軸力は kN・kgf で表示できます。1 kgf = 9.80665 N で換算しています（1 kgf·m = 9.80665 N·m、1 kgf·cm = 0.0980665 N·m）。</p>
 <h2>強度区分と降伏点</h2>
 <table>
 <thead>

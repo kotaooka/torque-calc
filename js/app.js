@@ -13,13 +13,22 @@
   function toast(m) { const t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => { t.hidden = true; }, 2200); }
   const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 保存できない環境 */ } } };
   const KEY = 'torque-calc-inputs';
+  // 表示の単位（内部はトルク N·mm、力 N）。kgf は 1 kgf = 9.80665 N
+  const UNITS = {
+    Nm: { tq: 1 / 1000, f: 1 / 1000, uT: 'N·m', uF: 'kN' },
+    kgfcm: { tq: 1 / 98.0665, f: 1 / 9.80665, uT: 'kgf·cm', uF: 'kgf' },
+    kgfm: { tq: 1 / 9806.65, f: 1 / 9.80665, uT: 'kgf·m', uF: 'kgf' }
+  };
+  const U = () => UNITS[st.unit] || UNITS.Nm;
+  const TQ = v => v * U().tq, FZ = v => v * U().f;
   const num = s => { const t = String(s ?? '').trim().replace(/[０-９．－]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/,/g, ''); return t === '' ? NaN : Number(t); };
 
   // ---- 状態 ----
-  const CALC_DEF = { thr: 'M10', d: '', P: '', gr: '8.8', Rp: '', head: 'hex', dw: '', hole: '1', dh: '', fr: 'B', mu0: '0.08', mu1: '0.16', nu: '90', sc: '5', mode: 'target' };
+  const CALC_DEF = { thr: 'M10', d: '', P: '', gr: '8.8', Rp: '', head: 'hex', dw: '', hole: '1', dh: '', fr: 'std', mu0: '0.12', mu1: '0.12', nu: '90', sc: '5', mode: 'target' };
   const TAB_DEF = { kind: 'M', series: 'coarse', gr: '8.8', hole: '1', nu: '90' };
   let st = store.get(KEY);
-  if (!st || !st.c || !st.t) st = { mode: 'calc', c: { ...CALC_DEF }, t: { ...TAB_DEF } };
+  if (!st || !st.c || !st.t) st = { mode: 'calc', unit: 'Nm', c: { ...CALC_DEF }, t: { ...TAB_DEF } };
+  if (!UNITS[st.unit]) st.unit = 'Nm';
   st.c = { ...CALC_DEF, ...st.c }; st.t = { ...TAB_DEF, ...st.t };
   const save = () => store.set(KEY, st);
 
@@ -36,7 +45,9 @@
   $('cThr').innerHTML = thrOpts(true);
   $('cGr').innerHTML = grOpts(true);
   $('tGr').innerHTML = grOpts(false);
-  $('cFr').innerHTML = TC.FRICTION.map(f => opt(f.id, `VDI 2230 の${f.ja}`)).join('') + opt('custom', '直接入れる');
+  // 摩擦係数の選択肢：0.12（メーカーのトルク表の多くと同じ）、VDI 2230 の区分、直接入力
+  const FR_STD = { id: 'std', lo: 0.12, hi: 0.12 };
+  $('cFr').innerHTML = opt('std', '0.12（一般的なトルク表と同じ）') + TC.FRICTION.map(f => opt(f.id, `VDI 2230 の${f.ja}`)).join('') + opt('custom', '直接入れる');
 
   // ---- 入力と状態の対応 ----
   const CALC_IN = { cThr: 'thr', cD: 'd', cP: 'P', cGr: 'gr', cRp: 'Rp', cHead: 'head', cDw: 'dw', cHole: 'hole', cDh: 'dh', cFr: 'fr', cMu0: 'mu0', cMu1: 'mu1', cNu: 'nu', cSc: 'sc' };
@@ -50,7 +61,7 @@
     if (c.hole !== 'custom') c.dh = seat ? String(seat.dh) : '';
   }
   function syncFriction() {
-    const f = TC.FRICTION.find(x => x.id === st.c.fr);
+    const f = st.c.fr === 'std' ? FR_STD : TC.FRICTION.find(x => x.id === st.c.fr);
     if (f) { st.c.mu0 = String(f.lo); st.c.mu1 = String(f.hi); }
   }
   function fillInputs() {
@@ -86,7 +97,9 @@
     tabUpd,
     segs('cMode', () => st.c.mode, v => { st.c.mode = v; }),
     segs('tKind', () => st.t.kind, v => { st.t.kind = v; }),
-    segs('tSeries', () => st.t.series, v => { st.t.series = v; })
+    segs('tSeries', () => st.t.series, v => { st.t.series = v; }),
+    segs('cUnit', () => st.unit, v => { st.unit = v; }),
+    segs('tUnit', () => st.unit, v => { st.unit = v; })
   ];
 
   // ---- SVG の共通部品 ----
@@ -130,7 +143,10 @@
     const dNow = curD();
     $('cGrNote').textContent = g ? `${g.id}：${g.note} の最小 ${fmt(g.Rp(dNow > 0 ? dNow : 10), 0)} MPa${g.mat === 'stainless' ? '（オーステナイト系）' : ''}` : '';
     const fr = TC.FRICTION.find(f => f.id === st.c.fr);
-    $('cFrNote').textContent = fr ? `例：${fr.ex}（目安）。実際の値は締付け試験（JIS B 1084）で確かめるのが確実です。` : 'ねじ面と座面の摩擦係数を同じ値として入れてください。分かっているばらつきの範囲を最小〜最大に入れます。';
+    const lowNote = '推奨トルクは摩擦係数の最小で決まるので、範囲の下限を下げるほど推奨トルクも下がります。';
+    $('cFrNote').textContent = st.c.fr === 'std'
+      ? 'メーカーのトルク表の多くは、μ を 1 つ（0.12 前後）に決めて計算しています。表面処理と潤滑で摩擦係数の範囲が分かっているときは、区分を選ぶか直接入れてください。' + lowNote
+      : fr ? `例：${fr.ex}（目安）。実際の値は締付け試験（JIS B 1084）で確かめるのが確実です。${lowNote}` : `ねじ面と座面の摩擦係数を同じ値として入れてください。分かっているばらつきの範囲を最小〜最大に入れます。${lowNote}`;
     cCopy.length = 0;
     const msgs = [];
     if (bad.size) {
@@ -139,12 +155,12 @@
       if (o.dh >= o.dw) msgs.push(['err', 'ボルト穴径が座面の径以上です。座面が当たらないので計算できません。']);
       if (st.c.head === 'hex' && !TC.seatOf(curD())) msgs.push(['err', 'この呼び径は六角ボルトの寸法を持っていません。「座面」で「径を入れる」を選び、座面の径を入れてください。']);
       if (st.c.hole !== 'custom' && !TC.seatOf(curD())) msgs.push(['err', 'この呼び径はボルト穴径の表にありません。「ボルト穴」で「径を入れる」を選び、穴径を入れてください。']);
-      showMsgs(msgs); $('cKpi').innerHTML = ''; $('cFig').innerHTML = ''; $('cSplit').innerHTML = ''; $('cRes').innerHTML = '';
+      showMsgs(msgs); $('cSum').innerHTML = ''; $('cKpi').innerHTML = ''; $('cFig').innerHTML = ''; $('cSplit').innerHTML = ''; $('cRes').innerHTML = '';
       return;
     }
     const r = TC.calc(o); res = r;
     if (r.errors.length) {
-      r.errors.forEach(e => msgs.push(['err', e])); showMsgs(msgs);
+      r.errors.forEach(e => msgs.push(['err', e])); showMsgs(msgs); $('cSum').innerHTML = '';
       $('cKpi').innerHTML = ''; $('cFig').innerHTML = ''; $('cSplit').innerHTML = ''; $('cRes').innerHTML = '';
       return;
     }
@@ -154,20 +170,32 @@
     if (g && g.mat === 'stainless' && r.muMin < 0.15) msgs.push(['info', 'ステンレスは潤滑しないとかじりやすく、摩擦係数が 0.2〜0.35 程度まで大きくなります。最小の摩擦係数が潤滑した状態の値か確かめてください。']);
     if (r.ratioF > 1.8) msgs.push(['info', `軸力の最大と最小の比が ${fmt(r.ratioF, 2)} あります。必要な軸力（最小）が足りるかは、設計の条件（外力・すべり・座面の面圧）で確かめてください。`]);
     showMsgs(msgs);
+    drawSummary(r);
     const tId = st.c.thr === 'custom' ? `M${fmt(r.g.d, r.g.d % 1 ? 1 : 0)}×${r.g.P}` : st.c.thr.replace('x', '×');
     const gId = g ? g.id : `Rp ${fmt(r.Rp, 0)} MPa`;
     $('cTitle').textContent = `推奨締付けトルク（${tId}・${gId}）`;
     const range = (a, b, d) => r.scatter > 0 ? `${fmt(a, d)}〜${fmt(b, d)}` : '';
-    const mD = r.Mnom / 1000 >= 100 ? 0 : r.Mnom / 1000 >= 10 ? 1 : 2;
+    const u = U(), mD = TQ(r.Mnom) >= 100 ? 0 : TQ(r.Mnom) >= 10 ? 1 : 2;
     $('cKpi').innerHTML = [
-      ['main', r.mode === 'upper' ? '指示するトルク（上限が推奨トルク）' : '推奨締付けトルク', `${sig(r.Mnom / 1000)}<small> N·m</small>`, r.scatter > 0 ? `±${fmt(r.scatter * 100, 1)}%：${range(r.Mmin / 1000, r.Mmax / 1000, mD)}` : 'トルクのばらつきなし'],
-      ['', '許容締付け軸力', `${sig(r.FMzul / 1000)}<small> kN</small>`, `μ ${r.muMin} で降伏点の ${fmt(r.nu * 100, 0)}%`],
-      ['', '軸力の範囲', `${sig(r.Fmin / 1000)}〜${sig(r.Fmax / 1000)}<small> kN</small>`, `最大 ÷ 最小 = ${fmt(r.ratioF, 2)}`],
+      ['main', r.mode === 'upper' ? '指示するトルク（上限が推奨トルク）' : '推奨締付けトルク', `${sig(TQ(r.Mnom))}<small> ${u.uT}</small>`, r.scatter > 0 ? `±${fmt(r.scatter * 100, 1)}%：${range(TQ(r.Mmin), TQ(r.Mmax), mD)}` : 'トルクのばらつきなし'],
+      ['', '許容締付け軸力', `${sig(FZ(r.FMzul))}<small> ${u.uF}</small>`, `μ ${r.muMin} で降伏点の ${fmt(r.nu * 100, 0)}%`],
+      ['', '軸力の範囲', `${sig(FZ(r.Fmin))}〜${sig(FZ(r.Fmax))}<small> ${u.uF}</small>`, `最大 ÷ 最小 = ${fmt(r.ratioF, 2)}`],
       [r.useMax > 1 ? 'ng' : '', '降伏点の利用率', `${pct(r.useMin)}〜${pct(r.useMax)}<small> %</small>`, '締付け時の相当応力 ÷ 降伏点'],
       ['', 'トルク係数 K', `${fmt(r.Kmin, 3)}〜${fmt(r.Kmax, 3)}`, 'JIS B 1083 の T = K·F·d'],
-      ['', '降伏する軸力', `${sig(r.FyMin / 1000)}<small> kN</small>`, `μ ${r.muMin} のとき（μ ${r.muMax} は ${sig(r.FyMax / 1000)}）`]
+      ['', '降伏する軸力', `${sig(FZ(r.FyMin))}<small> ${u.uF}</small>`, `μ ${r.muMin} のとき（μ ${r.muMax} は ${sig(FZ(r.FyMax))}）`]
     ].map(([cls, lab, val, sub]) => `<div class="${cls}"><span>${esc(lab)}</span><b>${val}</b><small>${esc(sub)}</small></div>`).join('');
     drawCurve(r); drawSplit(r); drawResTable(r, tId, gId);
+  }
+
+  // スマホ用の要約（狭い画面で、ねじと強度区分の直下に推奨トルクを出す）
+  function drawSummary(r) {
+    const u = U(), d = TQ(r.Mnom) >= 100 ? 0 : TQ(r.Mnom) >= 10 ? 1 : 2;
+    $('cSum').innerHTML = `<span class="lab">${r.mode === 'upper' ? '指示するトルク' : '推奨締付けトルク'}</span>` +
+      `<b>${esc(sig(TQ(r.Mnom)))}<small> ${esc(u.uT)}</small></b>` +
+      `<span class="sub">${r.scatter > 0 ? `±${fmt(r.scatter * 100, 1)}%：${fmt(TQ(r.Mmin), d)}〜${fmt(TQ(r.Mmax), d)}・` : ''}軸力 ${esc(sig(FZ(r.Fmin)))}〜${esc(sig(FZ(r.Fmax)))} ${esc(u.uF)}</span>` +
+      `<a href="#cKpi" class="more">詳しい結果へ</a>`;
+    const a = $('cSum').querySelector('.more');
+    a.addEventListener('click', e => { e.preventDefault(); const y = $('cKpi').getBoundingClientRect().top + scrollY - document.querySelector('header.top').offsetHeight - 60; window.scrollTo({ top: y, behavior: 'smooth' }); });
   }
 
   function showMsgs(list) {
@@ -178,7 +206,7 @@
   function drawCurve(r) {
     const el = $('cFig'), narrow = el.clientWidth && el.clientWidth < 480;
     const W = narrow ? 420 : 600, H = narrow ? 300 : 320, L = 54, R = 16, T = 18, Bm = 38;
-    const kN = v => v / 1000, Nm = v => v / 1000;
+    const kN = FZ, Nm = TQ, toNmm = v => v / U().tq, u = U();
     const xmaxRaw = Nm(r.Mmax) * 1.35, yt0 = niceTicks(0, kN(r.FyMin) * 1.12, 5), xt0 = niceTicks(0, xmaxRaw, 5);
     const xmax = xt0.t[xt0.t.length - 1] < xmaxRaw ? xt0.t[xt0.t.length - 1] + xt0.step : xt0.t[xt0.t.length - 1];
     const ymaxRaw = kN(r.FyMin) * 1.12, ymax = yt0.t[yt0.t.length - 1] < ymaxRaw ? yt0.t[yt0.t.length - 1] + yt0.step : yt0.t[yt0.t.length - 1];
@@ -191,8 +219,8 @@
     // 目盛り
     niceTicks(0, ymax, 5).t.forEach(v => { const y = Y(v); s += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="${gr}"/><text x="${L - 6}" y="${y + 4}" font-size="11" fill="${ink2}" text-anchor="end" font-family="${nf}">${esc(fmt(v, tickD(yt0.step)))}</text>`; });
     niceTicks(0, xmax, 5).t.forEach(v => { const x = X(v); s += `<line x1="${x}" x2="${x}" y1="${T}" y2="${H - Bm}" stroke="${gr}" stroke-opacity=".7"/><text x="${x}" y="${H - Bm + 15}" font-size="11" fill="${ink2}" text-anchor="middle" font-family="${nf}">${esc(fmt(v, tickD(xt0.step)))}</text>`; });
-    s += `<text x="${L - 6}" y="12" font-size="10.5" fill="${ink2}" text-anchor="end">kN</text>`;
-    s += `<text x="${W - R}" y="${H - 4}" font-size="11" fill="${ink2}" text-anchor="end">締付けトルク [N·m]</text>`;
+    s += `<text x="${L - 6}" y="12" font-size="10.5" fill="${ink2}" text-anchor="end">${esc(u.uF)}</text>`;
+    s += `<text x="${W - R}" y="${H - 4}" font-size="11" fill="${ink2}" text-anchor="end">締付けトルク [${esc(u.uT)}]</text>`;
     s += `<text x="${L + 6}" y="${T + 14}" font-size="11" fill="${ink2}">軸力</text>`;
     // 降伏する軸力（摩擦が最小・最大で値が違う）
     [[r.FyMin, r.muMin], [r.FyMax, r.muMax]].forEach(([F, m], i) => {
@@ -204,11 +232,11 @@
     // トルクと軸力の線（降伏する軸力で止める）
     [[r.muMin, '--s1'], [r.muMax, '--s2']].forEach(([m, c]) => {
       const Fy = kN(r.Fy(m)), Mend = Math.min(xmax, Nm(r.M(r.Fy(m), m)));
-      const Fend = kN(r.F(Mend * 1000, m));
+      const Fend = kN(r.F(toNmm(Mend), m));
       s += `<line x1="${X(0)}" y1="${Y(0)}" x2="${X(Mend)}" y2="${Y(Fend)}" stroke="${css(c)}" stroke-width="2.4"/>`;
       if (Fend >= Fy - 1e-6) s += `<circle cx="${X(Mend)}" cy="${Y(Fend)}" r="4" fill="${ng}"/>`;
       // 線の名前（右端の少し手前）
-      const xl = Math.min(Mend, xmax * 0.92), yl = kN(r.F(xl * 1000, m));
+      const xl = Math.min(Mend, xmax * 0.92), yl = kN(r.F(toNmm(xl), m));
       s += `<text x="${X(xl) - 6}" y="${Y(yl) + (c === '--s1' ? -8 : 16)}" font-size="11" fill="${css(c)}" text-anchor="end" font-family="${nf}">μ ${m}</text>`;
     });
     // 軸力の範囲（縦の帯と線が交わるところ）を左の目盛りの横に示す
@@ -221,7 +249,7 @@
     s += `<line x1="${xa}" x2="${xa}" y1="${ya}" y2="${H - Bm}" stroke="${mut}" stroke-dasharray="4 3"/>`;
     s += `<circle cx="${xa}" cy="${ya}" r="5" fill="${css('--surface')}" stroke="${css('--s1')}" stroke-width="2.4"/>`;
     const right = xa < W - 190;
-    s += `<text x="${xa + (right ? 9 : -9)}" y="${ya + 18}" font-size="11.5" font-weight="700" fill="${ink}" text-anchor="${right ? 'start' : 'end'}">推奨 ${esc(sig(Nm(r.MA)))} N·m・${esc(sig(kN(r.FMzul)))} kN</text>`;
+    s += `<text x="${xa + (right ? 9 : -9)}" y="${ya + 18}" font-size="11.5" font-weight="700" fill="${ink}" text-anchor="${right ? 'start' : 'end'}">推奨 ${esc(sig(Nm(r.MA)))} ${esc(u.uT)}・${esc(sig(kN(r.FMzul)))} ${esc(u.uF)}</text>`;
     el.innerHTML = s + '</svg>';
   }
 
@@ -247,6 +275,7 @@
 
   // 結果の表
   function drawResTable(r, tId, gId) {
+    const u = U(), t2 = v => fmt(TQ(v), st.unit === 'kgfm' ? 3 : 2), f2 = v => fmt(FZ(v), st.unit === 'Nm' ? 2 : 0);
     const rows = [
       ['ねじ', `${tId}`, '', `ピッチ ${r.g.P} mm`],
       ['強度区分', gId, '', `降伏点 ${fmt(r.Rp, 0)} MPa`],
@@ -255,13 +284,13 @@
       ['座面の摩擦の有効径 DKm', fmt(r.DKm, 2), 'mm', `(dw ${r.dw} + dh ${r.dh}) ÷ 2`],
       ['摩擦係数 μ', `${r.muMin}〜${r.muMax}`, '', 'ねじ面 = 座面'],
       ['降伏点の利用率 ν', fmt(r.nu * 100, 0), '%', ''],
-      ['推奨締付けトルク MA', fmt(r.MA / 1000, 2), 'N·m', `μ ${r.muMin} で許容締付け軸力になるトルク`],
-      ['指示するトルク', fmt(r.Mnom / 1000, 2), 'N·m', r.mode === 'upper' ? '上限を MA にした狙い値' : 'MA を狙い値'],
-      ['トルクの範囲', `${fmt(r.Mmin / 1000, 2)}〜${fmt(r.Mmax / 1000, 2)}`, 'N·m', `±${fmt(r.scatter * 100, 1)}%`],
-      ['許容締付け軸力 FMzul', fmt(r.FMzul / 1000, 2), 'kN', ''],
-      ['軸力の範囲', `${fmt(r.Fmin / 1000, 2)}〜${fmt(r.Fmax / 1000, 2)}`, 'kN', `最大 ÷ 最小 ${fmt(r.ratioF, 2)}`],
+      ['推奨締付けトルク MA', t2(r.MA), u.uT, `μ ${r.muMin} で許容締付け軸力になるトルク`],
+      ['指示するトルク', t2(r.Mnom), u.uT, r.mode === 'upper' ? '上限を MA にした狙い値' : 'MA を狙い値'],
+      ['トルクの範囲', `${t2(r.Mmin)}〜${t2(r.Mmax)}`, u.uT, `±${fmt(r.scatter * 100, 1)}%`],
+      ['許容締付け軸力 FMzul', f2(r.FMzul), u.uF, ''],
+      ['軸力の範囲', `${f2(r.Fmin)}〜${f2(r.Fmax)}`, u.uF, `最大 ÷ 最小 ${fmt(r.ratioF, 2)}`],
       ['降伏点の利用率', `${pct(r.useMin)}〜${pct(r.useMax)}`, '%', ''],
-      ['降伏する軸力', `${fmt(r.FyMin / 1000, 2)}〜${fmt(r.FyMax / 1000, 2)}`, 'kN', `μ ${r.muMin}〜${r.muMax}`],
+      ['降伏する軸力', `${f2(r.FyMin)}〜${f2(r.FyMax)}`, u.uF, `μ ${r.muMin}〜${r.muMax}`],
       ['トルク係数 K', `${fmt(r.Kmin, 3)}〜${fmt(r.Kmax, 3)}`, '', 'JIS B 1083']
     ];
     $('cRes').innerHTML = `<table class="res"><tbody>${rows.map(([a, b, u, n]) => `<tr><th>${esc(a)}${n ? `<small>${esc(n)}</small>` : ''}</th><td>${esc(b)}${u ? `<span class="u">${esc(u)}</span>` : ''}</td></tr>`).join('')}</tbody></table>`;
@@ -277,19 +306,20 @@
     const nuBad = !(nu > 0 && nu <= 1);
     $('tNu').classList.toggle('bad', nuBad);
     const g = TC.findGrade(t.gr);
-    $('tTitle').textContent = `トルク表（${g.id}・${t.kind === 'M' ? '締付けトルク N·m' : '締付け軸力 kN'}）`;
+    const u = U();
+    $('tTitle').textContent = `トルク表（${g.id}・${t.kind === 'M' ? '締付けトルク ' + u.uT : '締付け軸力 ' + u.uF}）`;
     tCopy.length = 0;
     if (nuBad) { $('tTable').innerHTML = '<div class="msg err">× 降伏点の利用率は 0 を超え 100 以下で入れてください。</div>'; return; }
     const list = TC.THREADS.filter(x => x.coarse === (t.series === 'coarse'));
     const head = ['ねじ', ...MUS.map(m => `μ ${m.toFixed(2)}`)];
-    tCopy.push([`${g.id}・${t.kind === 'M' ? '締付けトルク [N·m]' : '締付け軸力 [kN]'}・ν ${fmt(nu * 100, 0)}%・ボルト穴 ${['1級', '2級', '3級'][+t.hole]}`]);
+    tCopy.push([`${g.id}・${t.kind === 'M' ? `締付けトルク [${u.uT}]` : `締付け軸力 [${u.uF}]`}・ν ${fmt(nu * 100, 0)}%・ボルト穴 ${['1級', '2級', '3級'][+t.hole]}`]);
     tCopy.push(head);
     const body = list.map(x => {
       const seat = TC.seatOf(x.d, +t.hole);
       const out = g.dMax && x.d > g.dMax;
       const vals = MUS.map(m => {
         const r = TC.calc({ thread: x.id, grade: g.id, mu: [m, m], nu, dw: seat.dw, dh: seat.dh });
-        return r.errors.length ? NaN : (t.kind === 'M' ? r.MA : r.FMzul) / 1000;
+        return r.errors.length ? NaN : (t.kind === 'M' ? TQ(r.MA) : FZ(r.FMzul));
       });
       tCopy.push([x.id, ...vals.map(v => sig(v).replace(/,/g, ''))]);
       const cur = st.c.thr === x.id ? ' class="cur"' : '';
