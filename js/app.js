@@ -47,7 +47,7 @@
   $('tGr').innerHTML = grOpts(false);
   // 摩擦係数の選択肢：0.12（メーカーのトルク表の多くと同じ）、VDI 2230 の区分、直接入力
   const FR_STD = { id: 'std', lo: 0.12, hi: 0.12 };
-  $('cFr').innerHTML = opt('std', '0.12（一般的なトルク表と同じ）') + TC.FRICTION.map(f => opt(f.id, `VDI 2230 の${f.ja}`)).join('') + opt('custom', '直接入れる');
+  $('cFr').innerHTML = opt('std', '0.12（一般的なトルク表と同じ）') + TC.FRICTION.map(f => opt(f.id, `VDI 2230の${f.ja}`)).join('') + opt('custom', '直接入れる');
 
   // ---- 入力と状態の対応 ----
   const CALC_IN = { cThr: 'thr', cD: 'd', cP: 'P', cGr: 'gr', cRp: 'Rp', cHead: 'head', cDw: 'dw', cHole: 'hole', cDh: 'dh', cFr: 'fr', cMu0: 'mu0', cMu1: 'mu1', cNu: 'nu', cSc: 'sc' };
@@ -141,11 +141,11 @@
     const { o, bad } = readCalc();
     const g = st.c.gr === 'custom' ? null : TC.findGrade(st.c.gr);
     const dNow = curD();
-    $('cGrNote').textContent = g ? `${g.id}：${g.note} の最小 ${fmt(g.Rp(dNow > 0 ? dNow : 10), 0)} MPa${g.mat === 'stainless' ? '（オーステナイト系）' : ''}` : '';
+    $('cGrNote').textContent = g ? `${g.id}：${g.note}の最小${fmt(g.Rp(dNow > 0 ? dNow : 10), 0)} MPa${g.mat === 'stainless' ? '（オーステナイト系）' : ''}` : '';
     const fr = TC.FRICTION.find(f => f.id === st.c.fr);
     const lowNote = '推奨トルクは摩擦係数の最小で決まるので、範囲の下限を下げるほど推奨トルクも下がります。';
     $('cFrNote').textContent = st.c.fr === 'std'
-      ? 'メーカーのトルク表の多くは、μ を 1 つ（0.12 前後）に決めて計算しています。表面処理と潤滑で摩擦係数の範囲が分かっているときは、区分を選ぶか直接入れてください。' + lowNote
+      ? 'メーカーのトルク表の多くは、μを1つ（0.12前後）に決めて計算しています。表面処理と潤滑で摩擦係数の範囲が分かっているときは、区分を選ぶか直接入れてください。' + lowNote
       : fr ? `例：${fr.ex}（目安）。実際の値は締付け試験（JIS B 1084）で確かめるのが確実です。${lowNote}` : `ねじ面と座面の摩擦係数を同じ値として入れてください。分かっているばらつきの範囲を最小〜最大に入れます。${lowNote}`;
     cCopy.length = 0;
     const msgs = [];
@@ -166,9 +166,9 @@
     }
     r.warns.forEach(w => msgs.push(['warn', w]));
     r.infos.forEach(w => msgs.push(['info', w]));
-    if (g && g.id === '12.9') msgs.push(['warn', '12.9 に電気めっきをすると、水素ぜい化で締めてから数時間〜数日後に破断することがあります。めっきの種類とベーキングの有無を確かめてください。']);
-    if (g && g.mat === 'stainless' && r.muMin < 0.15) msgs.push(['info', 'ステンレスは潤滑しないとかじりやすく、摩擦係数が 0.2〜0.35 程度まで大きくなります。最小の摩擦係数が潤滑した状態の値か確かめてください。']);
-    if (r.ratioF > 1.8) msgs.push(['info', `軸力の最大と最小の比が ${fmt(r.ratioF, 2)} あります。必要な軸力（最小）が足りるかは、設計の条件（外力・すべり・座面の面圧）で確かめてください。`]);
+    if (g && g.id === '12.9') msgs.push(['warn', '12.9に電気めっきをすると、水素ぜい化で締めてから数時間〜数日後に破断することがあります。めっきの種類とベーキングの有無を確かめてください。']);
+    if (g && g.mat === 'stainless' && r.muMin < 0.15) msgs.push(['info', 'ステンレスは潤滑しないとかじりやすく、摩擦係数が0.2〜0.35程度まで大きくなります。最小の摩擦係数が潤滑した状態の値か確かめてください。']);
+    if (r.ratioF > 1.8) msgs.push(['info', `軸力の最大と最小の比が${fmt(r.ratioF, 2)}あります。必要な軸力（最小）が足りるかは、設計の条件（外力・すべり・座面の面圧）で確かめてください。`]);
     showMsgs(msgs);
     drawSummary(r);
     const tId = st.c.thr === 'custom' ? `M${fmt(r.g.d, r.g.d % 1 ? 1 : 0)}×${r.g.P}` : st.c.thr.replace('x', '×');
@@ -178,11 +178,11 @@
     const u = U(), mD = TQ(r.Mnom) >= 100 ? 0 : TQ(r.Mnom) >= 10 ? 1 : 2;
     $('cKpi').innerHTML = [
       ['main', r.mode === 'upper' ? '指示するトルク（上限が推奨トルク）' : '推奨締付けトルク', `${sig(TQ(r.Mnom))}<small> ${u.uT}</small>`, r.scatter > 0 ? `±${fmt(r.scatter * 100, 1)}%：${range(TQ(r.Mmin), TQ(r.Mmax), mD)}` : 'トルクのばらつきなし'],
-      ['', '許容締付け軸力', `${sig(FZ(r.FMzul))}<small> ${u.uF}</small>`, `μ ${r.muMin} で降伏点の ${fmt(r.nu * 100, 0)}%`],
+      ['', '許容締付け軸力', `${sig(FZ(r.FMzul))}<small> ${u.uF}</small>`, `μ ${r.muMin}で降伏点の${fmt(r.nu * 100, 0)}%`],
       ['', '軸力の範囲', `${sig(FZ(r.Fmin))}〜${sig(FZ(r.Fmax))}<small> ${u.uF}</small>`, `最大 ÷ 最小 = ${fmt(r.ratioF, 2)}`],
       [r.useMax > 1 ? 'ng' : '', '降伏点の利用率', `${pct(r.useMin)}〜${pct(r.useMax)}<small> %</small>`, '締付け時の相当応力 ÷ 降伏点'],
-      ['', 'トルク係数 K', `${fmt(r.Kmin, 3)}〜${fmt(r.Kmax, 3)}`, 'JIS B 1083 の T = K·F·d'],
-      ['', '降伏する軸力', `${sig(FZ(r.FyMin))}<small> ${u.uF}</small>`, `μ ${r.muMin} のとき（μ ${r.muMax} は ${sig(FZ(r.FyMax))}）`]
+      ['', 'トルク係数K', `${fmt(r.Kmin, 3)}〜${fmt(r.Kmax, 3)}`, 'JIS B 1083のT = K·F·d'],
+      ['', '降伏する軸力', `${sig(FZ(r.FyMin))}<small> ${u.uF}</small>`, `μ ${r.muMin}のとき（μ ${r.muMax}は${sig(FZ(r.FyMax))}）`]
     ].map(([cls, lab, val, sub]) => `<div class="${cls}"><span>${esc(lab)}</span><b>${val}</b><small>${esc(sub)}</small></div>`).join('');
     drawCurve(r); drawSplit(r); drawResTable(r, tId, gId);
   }
@@ -192,7 +192,7 @@
     const u = U(), d = TQ(r.Mnom) >= 100 ? 0 : TQ(r.Mnom) >= 10 ? 1 : 2;
     $('cSum').innerHTML = `<span class="lab">${r.mode === 'upper' ? '指示するトルク' : '推奨締付けトルク'}</span>` +
       `<b>${esc(sig(TQ(r.Mnom)))}<small> ${esc(u.uT)}</small></b>` +
-      `<span class="sub">${r.scatter > 0 ? `±${fmt(r.scatter * 100, 1)}%：${fmt(TQ(r.Mmin), d)}〜${fmt(TQ(r.Mmax), d)}・` : ''}軸力 ${esc(sig(FZ(r.Fmin)))}〜${esc(sig(FZ(r.Fmax)))} ${esc(u.uF)}</span>` +
+      `<span class="sub">${r.scatter > 0 ? `±${fmt(r.scatter * 100, 1)}%：${fmt(TQ(r.Mmin), d)}〜${fmt(TQ(r.Mmax), d)}・` : ''}軸力${esc(sig(FZ(r.Fmin)))}〜${esc(sig(FZ(r.Fmax)))} ${esc(u.uF)}</span>` +
       `<a href="#cKpi" class="more">詳しい結果へ</a>`;
     const a = $('cSum').querySelector('.more');
     a.addEventListener('click', e => { e.preventDefault(); const y = $('cKpi').getBoundingClientRect().top + scrollY - document.querySelector('header.top').offsetHeight - 60; window.scrollTo({ top: y, behavior: 'smooth' }); });
@@ -249,7 +249,7 @@
     s += `<line x1="${xa}" x2="${xa}" y1="${ya}" y2="${H - Bm}" stroke="${mut}" stroke-dasharray="4 3"/>`;
     s += `<circle cx="${xa}" cy="${ya}" r="5" fill="${css('--surface')}" stroke="${css('--s1')}" stroke-width="2.4"/>`;
     const right = xa < W - 190;
-    s += `<text x="${xa + (right ? 9 : -9)}" y="${ya + 18}" font-size="11.5" font-weight="700" fill="${ink}" text-anchor="${right ? 'start' : 'end'}">推奨 ${esc(sig(Nm(r.MA)))} ${esc(u.uT)}・${esc(sig(kN(r.FMzul)))} ${esc(u.uF)}</text>`;
+    s += `<text x="${xa + (right ? 9 : -9)}" y="${ya + 18}" font-size="11.5" font-weight="700" fill="${ink}" text-anchor="${right ? 'start' : 'end'}">推奨${esc(sig(Nm(r.MA)))} ${esc(u.uT)}・${esc(sig(kN(r.FMzul)))} ${esc(u.uF)}</text>`;
     el.innerHTML = s + '</svg>';
   }
 
@@ -277,21 +277,21 @@
   function drawResTable(r, tId, gId) {
     const u = U(), t2 = v => fmt(TQ(v), st.unit === 'kgfm' ? 3 : 2), f2 = v => fmt(FZ(v), st.unit === 'Nm' ? 2 : 0);
     const rows = [
-      ['ねじ', `${tId}`, '', `ピッチ ${r.g.P} mm`],
-      ['強度区分', gId, '', `降伏点 ${fmt(r.Rp, 0)} MPa`],
-      ['有効径 d2', fmt(r.g.d2, 3), 'mm', ''],
-      ['応力断面積 As', fmt(r.g.AS, 1), 'mm²', 'ISO 898-1'],
-      ['座面の摩擦の有効径 DKm', fmt(r.DKm, 2), 'mm', `(dw ${r.dw} + dh ${r.dh}) ÷ 2`],
-      ['摩擦係数 μ', `${r.muMin}〜${r.muMax}`, '', 'ねじ面 = 座面'],
-      ['降伏点の利用率 ν', fmt(r.nu * 100, 0), '%', ''],
-      ['推奨締付けトルク MA', t2(r.MA), u.uT, `μ ${r.muMin} で許容締付け軸力になるトルク`],
-      ['指示するトルク', t2(r.Mnom), u.uT, r.mode === 'upper' ? '上限を MA にした狙い値' : 'MA を狙い値'],
+      ['ねじ', `${tId}`, '', `ピッチ${r.g.P} mm`],
+      ['強度区分', gId, '', `降伏点${fmt(r.Rp, 0)} MPa`],
+      ['有効径d2', fmt(r.g.d2, 3), 'mm', ''],
+      ['応力断面積As', fmt(r.g.AS, 1), 'mm²', 'ISO 898-1'],
+      ['座面の摩擦の有効径DKm', fmt(r.DKm, 2), 'mm', `(dw ${r.dw} + dh ${r.dh}) ÷ 2`],
+      ['摩擦係数μ', `${r.muMin}〜${r.muMax}`, '', 'ねじ面 = 座面'],
+      ['降伏点の利用率ν', fmt(r.nu * 100, 0), '%', ''],
+      ['推奨締付けトルクMA', t2(r.MA), u.uT, `μ ${r.muMin}で許容締付け軸力になるトルク`],
+      ['指示するトルク', t2(r.Mnom), u.uT, r.mode === 'upper' ? '上限をMAにした狙い値' : 'MAを狙い値'],
       ['トルクの範囲', `${t2(r.Mmin)}〜${t2(r.Mmax)}`, u.uT, `±${fmt(r.scatter * 100, 1)}%`],
-      ['許容締付け軸力 FMzul', f2(r.FMzul), u.uF, ''],
-      ['軸力の範囲', `${f2(r.Fmin)}〜${f2(r.Fmax)}`, u.uF, `最大 ÷ 最小 ${fmt(r.ratioF, 2)}`],
+      ['許容締付け軸力FMzul', f2(r.FMzul), u.uF, ''],
+      ['軸力の範囲', `${f2(r.Fmin)}〜${f2(r.Fmax)}`, u.uF, `最大 ÷ 最小${fmt(r.ratioF, 2)}`],
       ['降伏点の利用率', `${pct(r.useMin)}〜${pct(r.useMax)}`, '%', ''],
       ['降伏する軸力', `${f2(r.FyMin)}〜${f2(r.FyMax)}`, u.uF, `μ ${r.muMin}〜${r.muMax}`],
-      ['トルク係数 K', `${fmt(r.Kmin, 3)}〜${fmt(r.Kmax, 3)}`, '', 'JIS B 1083']
+      ['トルク係数K', `${fmt(r.Kmin, 3)}〜${fmt(r.Kmax, 3)}`, '', 'JIS B 1083']
     ];
     $('cRes').innerHTML = `<table class="res"><tbody>${rows.map(([a, b, u, n]) => `<tr><th>${esc(a)}${n ? `<small>${esc(n)}</small>` : ''}</th><td>${esc(b)}${u ? `<span class="u">${esc(u)}</span>` : ''}</td></tr>`).join('')}</tbody></table>`;
     cCopy.push(['項目', '値', '単位', '備考']);
@@ -307,12 +307,12 @@
     $('tNu').classList.toggle('bad', nuBad);
     const g = TC.findGrade(t.gr);
     const u = U();
-    $('tTitle').textContent = `トルク表（${g.id}・${t.kind === 'M' ? '締付けトルク ' + u.uT : '締付け軸力 ' + u.uF}）`;
+    $('tTitle').textContent = `トルク表（${g.id}・${t.kind === 'M' ? '締付けトルク' + u.uT : '締付け軸力' + u.uF}）`;
     tCopy.length = 0;
-    if (nuBad) { $('tTable').innerHTML = '<div class="msg err">× 降伏点の利用率は 0 を超え 100 以下で入れてください。</div>'; return; }
+    if (nuBad) { $('tTable').innerHTML = '<div class="msg err">× 降伏点の利用率は0を超え100以下で入れてください。</div>'; return; }
     const list = TC.THREADS.filter(x => x.coarse === (t.series === 'coarse'));
     const head = ['ねじ', ...MUS.map(m => `μ ${m.toFixed(2)}`)];
-    tCopy.push([`${g.id}・${t.kind === 'M' ? `締付けトルク [${u.uT}]` : `締付け軸力 [${u.uF}]`}・ν ${fmt(nu * 100, 0)}%・ボルト穴 ${['1級', '2級', '3級'][+t.hole]}`]);
+    tCopy.push([`${g.id}・${t.kind === 'M' ? `締付けトルク [${u.uT}]` : `締付け軸力 [${u.uF}]`}・ν ${fmt(nu * 100, 0)}%・ボルト穴${['1級', '2級', '3級'][+t.hole]}`]);
     tCopy.push(head);
     const body = list.map(x => {
       const seat = TC.seatOf(x.d, +t.hole);
@@ -326,7 +326,7 @@
       return `<tr data-thr="${esc(x.id)}"${cur}><th>${esc(x.id.replace('x', '×'))}${out ? '<small>範囲外</small>' : ''}</th>${vals.map(v => `<td${out ? ' class="na"' : ''}>${esc(sig(v))}</td>`).join('')}</tr>`;
     }).join('');
     $('tTable').innerHTML = `<table class="tq"><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>` +
-      (g.dMax ? `<p class="hint">「範囲外」は、${g.id} の規定（呼び径 ${g.dMax} mm 以下）を超える径です。参考値として灰色で示しています。</p>` : '');
+      (g.dMax ? `<p class="hint">「範囲外」は、${g.id}の規定（呼び径${g.dMax} mm以下）を超える径です。参考値として灰色で示しています。</p>` : '');
     $('tTable').querySelectorAll('tbody tr').forEach(tr => tr.addEventListener('click', () => {
       st.c.thr = tr.dataset.thr; st.c.gr = t.gr; st.c.hole = t.hole; st.c.head = 'hex'; st.c.nu = t.nu; syncSeat();
       st.mode = 'calc'; fillInputs(); save(); render(); window.scrollTo(0, 0);
@@ -344,12 +344,12 @@
   function copyRows(rows) {
     if (!rows.length) { toast('先に正しい値を入れてください'); return; }
     const text = rows.map(r => r.join('\t')).join('\n');
-    const done = () => toast('コピーしました。Excel に貼り付けられます');
+    const done = () => toast('コピーしました。Excelに貼り付けられます');
     if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
     function fallback() {
       const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
       let ok = false; try { ok = document.execCommand('copy'); } catch (e) { /* 失敗 */ }
-      ta.remove(); toast(ok ? 'コピーしました。Excel に貼り付けられます' : 'コピーできませんでした。表を選んでコピーしてください');
+      ta.remove(); toast(ok ? 'コピーしました。Excelに貼り付けられます' : 'コピーできませんでした。表を選んでコピーしてください');
     }
   }
   $('cCopy').addEventListener('click', () => copyRows(cCopy));

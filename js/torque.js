@@ -48,21 +48,21 @@
   // Rp：下降伏点 ReL、0.2% 耐力 Rp0.2、または Rpf の最小値 [MPa]
   // 鋼：ISO 898-1:2013（JIS B 1051:2014）。ステンレス：ISO 3506-1:2020
   const GRADES = [
-    { id: '4.6', mat: 'steel', Rp: () => 240, note: '下降伏点 ReL' },
+    { id: '4.6', mat: 'steel', Rp: () => 240, note: '下降伏点ReL' },
     { id: '4.8', mat: 'steel', Rp: () => 340, note: 'Rpf' },
-    { id: '5.6', mat: 'steel', Rp: () => 300, note: '下降伏点 ReL' },
+    { id: '5.6', mat: 'steel', Rp: () => 300, note: '下降伏点ReL' },
     { id: '5.8', mat: 'steel', Rp: () => 420, note: 'Rpf' },
     { id: '6.8', mat: 'steel', Rp: () => 480, note: 'Rpf' },
-    { id: '8.8', mat: 'steel', Rp: d => (d <= 16 ? 640 : 660), note: '0.2% 耐力 Rp0.2（16 mm 以下 640、超える 660）' },
-    { id: '9.8', mat: 'steel', Rp: () => 720, note: '0.2% 耐力 Rp0.2', dMax: 16 },
-    { id: '10.9', mat: 'steel', Rp: () => 940, note: '0.2% 耐力 Rp0.2' },
-    { id: '12.9', mat: 'steel', Rp: () => 1100, note: '0.2% 耐力 Rp0.2' },
-    { id: 'A2-50', mat: 'stainless', Rp: () => 210, note: '0.2% 耐力 Rp0.2', dMax: 39 },
-    { id: 'A2-70', mat: 'stainless', Rp: () => 450, note: '0.2% 耐力 Rp0.2', dMax: 24 },
-    { id: 'A2-80', mat: 'stainless', Rp: () => 600, note: '0.2% 耐力 Rp0.2', dMax: 24 },
-    { id: 'A4-50', mat: 'stainless', Rp: () => 210, note: '0.2% 耐力 Rp0.2', dMax: 39 },
-    { id: 'A4-70', mat: 'stainless', Rp: () => 450, note: '0.2% 耐力 Rp0.2', dMax: 24 },
-    { id: 'A4-80', mat: 'stainless', Rp: () => 600, note: '0.2% 耐力 Rp0.2', dMax: 24 }
+    { id: '8.8', mat: 'steel', Rp: d => (d <= 16 ? 640 : 660), note: '0.2%耐力Rp0.2（16 mm以下640、超える660）' },
+    { id: '9.8', mat: 'steel', Rp: () => 720, note: '0.2%耐力Rp0.2', dMax: 16 },
+    { id: '10.9', mat: 'steel', Rp: () => 940, note: '0.2%耐力Rp0.2' },
+    { id: '12.9', mat: 'steel', Rp: () => 1100, note: '0.2%耐力Rp0.2' },
+    { id: 'A2-50', mat: 'stainless', Rp: () => 210, note: '0.2%耐力Rp0.2', dMax: 39 },
+    { id: 'A2-70', mat: 'stainless', Rp: () => 450, note: '0.2%耐力Rp0.2', dMax: 24 },
+    { id: 'A2-80', mat: 'stainless', Rp: () => 600, note: '0.2%耐力Rp0.2', dMax: 24 },
+    { id: 'A4-50', mat: 'stainless', Rp: () => 210, note: '0.2%耐力Rp0.2', dMax: 39 },
+    { id: 'A4-70', mat: 'stainless', Rp: () => 450, note: '0.2%耐力Rp0.2', dMax: 24 },
+    { id: 'A4-80', mat: 'stainless', Rp: () => 600, note: '0.2%耐力Rp0.2', dMax: 24 }
   ];
   const findGrade = id => GRADES.find(g => g.id === id) || null;
 
@@ -98,18 +98,18 @@
     if (!(muMin > 0) || !(muMax > 0)) errors.push('摩擦係数を入れてください。');
     else if (muMin > muMax) errors.push('摩擦係数は最小 ≦ 最大で入れてください。');
     const nu = o.nu == null ? 0.9 : o.nu;
-    if (!(nu > 0 && nu <= 1)) errors.push('降伏点の利用率は 0 を超え 100% 以下で入れてください。');
+    if (!(nu > 0 && nu <= 1)) errors.push('降伏点の利用率は0を超え100%以下で入れてください。');
     const dw = o.dw, dh = o.dh;
     if (!(dw > 0) || !(dh > 0)) errors.push('座面の径とボルト穴径を入れてください。');
     else if (dh >= dw) errors.push('ボルト穴径が座面の径以上です。座面が当たらないので計算できません。');
     const scatter = o.scatter || 0;
-    if (!(scatter >= 0 && scatter < 0.5)) errors.push('トルクのばらつきは 0〜50% で入れてください。');
+    if (!(scatter >= 0 && scatter < 0.5)) errors.push('トルクのばらつきは0〜50%で入れてください。');
     if (errors.length) return { errors };
 
     const g = threadGeom(d, P);
     const warns = [], infos = [];
     if (dh <= d) warns.push('ボルト穴径が呼び径以下です。入力を確かめてください。');
-    if (grade && grade.dMax && d > grade.dMax) warns.push(`強度区分 ${grade.id} は呼び径 ${grade.dMax} mm 以下の規定です。規格の範囲外なので、参考値として見てください。`);
+    if (grade && grade.dMax && d > grade.dMax) warns.push(`強度区分${grade.id}は呼び径${grade.dMax} mm以下の規定です。規格の範囲外なので、参考値として見てください。`);
     const DKm = (dw + dh) / 2;   // 座面の摩擦の有効径
     // 推奨トルクは、摩擦が最小のときに許容締付け軸力になるトルク（VDI 2230 の表と同じ考え方）
     const FMzul = preloadAt(g, Rp, nu, muMin);
@@ -125,8 +125,8 @@
     const FyMin = preloadAt(g, Rp, 1, muMin), FyMax = preloadAt(g, Rp, 1, muMax);
     const util = (F, m) => F * stressFactor(g, m) / g.AS / Rp;
     const useMax = util(Fmax, muMin), useMin = util(Fmin, muMax);
-    if (useMax > 1) warns.push(`摩擦が最小でトルクが上限のとき、相当応力が降伏点を ${fmt((useMax - 1) * 100, 1)}% 超えます。トルクのばらつきを小さくするか、上限を推奨トルクに合わせてください。`);
-    else if (useMax > nu + 1e-9) infos.push(`摩擦が最小でトルクが上限のとき、降伏点の利用率は ${fmt(useMax * 100, 1)}% で、設定した ${fmt(nu * 100, 0)}% を少し超えます（降伏はしません）。超えたくないときは、締付けトルクの決め方で「上限を推奨トルクに」を選んでください。`);
+    if (useMax > 1) warns.push(`摩擦が最小でトルクが上限のとき、相当応力が降伏点を${fmt((useMax - 1) * 100, 1)}%超えます。トルクのばらつきを小さくするか、上限を推奨トルクに合わせてください。`);
+    else if (useMax > nu + 1e-9) infos.push(`摩擦が最小でトルクが上限のとき、降伏点の利用率は${fmt(useMax * 100, 1)}%で、設定した${fmt(nu * 100, 0)}%を少し超えます（降伏はしません）。超えたくないときは、締付けトルクの決め方で「上限を推奨トルクに」を選んでください。`);
     // トルクの内訳（摩擦が最小・最大のそれぞれ）
     const split = m => {
       const tot = torqueFactor(g, m, DKm);

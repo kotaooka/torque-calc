@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ボルト締付けトルク計算ツール｜推奨トルク・軸力・トルク表</title>
-<meta name="description" content="ボルトのねじ・強度区分・摩擦係数から、VDI 2230 の方法で推奨締付けトルクと締付け軸力を求める。摩擦とトルクのばらつきによる軸力の範囲、トルク表にも対応">
+<meta name="description" content="ボルトのねじ・強度区分・摩擦係数から、VDI 2230の方法で推奨締付けトルクと締付け軸力を求める。摩擦とトルクのばらつきによる軸力の範囲、トルク表にも対応">
 <link rel="canonical" href="https://kotaooka.github.io/torque-calc/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="QC Workbench">
 <meta property="og:title" content="ボルト締付けトルク計算ツール｜推奨トルク・軸力・トルク表">
-<meta property="og:description" content="ボルトのねじ・強度区分・摩擦係数から、VDI 2230 の方法で推奨締付けトルクと締付け軸力を求める。摩擦とトルクのばらつきによる軸力の範囲、トルク表にも対応">
+<meta property="og:description" content="ボルトのねじ・強度区分・摩擦係数から、VDI 2230の方法で推奨締付けトルクと締付け軸力を求める。摩擦とトルクのばらつきによる軸力の範囲、トルク表にも対応">
 <meta property="og:url" content="https://kotaooka.github.io/torque-calc/">
 <meta property="og:locale" content="ja_JP">
 <meta property="og:image" content="https://kotaooka.github.io/torque-calc/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="締付けトルク計算機：トルクと軸力の関係を、摩擦が最小・最大の 2 本の線で示した図">
+<meta property="og:image:alt" content="締付けトルク計算機：トルクと軸力の関係を、摩擦が最小・最大の2本の線で示した図">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#1d5c96" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#11161b" media="(prefers-color-scheme: dark)">
@@ -222,10 +222,10 @@ table.tq td.na { color: var(--muted); }
           <div class="field"><label for="cGr">強度区分</label><select id="cGr"></select></div>
           <div class="field" id="cDf" hidden><label for="cD">呼び径 [mm]</label><input type="text" id="cD" inputmode="decimal"></div>
           <div class="field" id="cPf" hidden><label for="cP">ピッチ [mm]</label><input type="text" id="cP" inputmode="decimal"></div>
-          <div class="field wide" id="cRpf" hidden><label for="cRp">降伏点（0.2% 耐力）の最小 [MPa]</label><input type="text" id="cRp" inputmode="decimal"></div>
+          <div class="field wide" id="cRpf" hidden><label for="cRp">降伏点（0.2%耐力）の最小 [MPa]</label><input type="text" id="cRp" inputmode="decimal"></div>
           <p class="hint wide" id="cGrNote" aria-live="polite"></p>
         </div>
-        <p class="privacy">データはこの端末の中だけで計算し、外部に送信しません。入力は自動でこの端末に保存します。</p>
+        <p class="privacy">入力したデータは、この端末の外に送りません。入力は自動でこの端末に保存します。</p>
       </div>
       <div class="sum" id="cSum" aria-live="polite"></div>
       <div class="box">
@@ -233,25 +233,25 @@ table.tq td.na { color: var(--muted); }
         <div class="fields">
           <div class="field"><label for="cHead">座面</label><select id="cHead" class="ui">
             <option value="hex">六角ボルト</option><option value="custom">径を入れる</option></select></div>
-          <div class="field"><label for="cDw">座面の径 dw [mm]</label><input type="text" id="cDw" inputmode="decimal"></div>
+          <div class="field"><label for="cDw">座面の径dw [mm]</label><input type="text" id="cDw" inputmode="decimal"></div>
           <div class="field"><label for="cHole">ボルト穴</label><select id="cHole" class="ui">
             <option value="0">1級（精）</option><option value="1">2級（中）</option><option value="2">3級（粗）</option><option value="custom">径を入れる</option></select></div>
-          <div class="field"><label for="cDh">ボルト穴径 dh [mm]</label><input type="text" id="cDh" inputmode="decimal"></div>
+          <div class="field"><label for="cDh">ボルト穴径dh [mm]</label><input type="text" id="cDh" inputmode="decimal"></div>
         </div>
-        <p class="hint">六角ボルトの座面の径は ISO 4014・4017 の最小、ボルト穴径は JIS B 1001（ISO 273）です。六角穴付きボルト・フランジ付きボルト・座金の上で回すナットは、当たる面の外径を入れてください。</p>
+        <p class="hint">六角ボルトの座面の径はISO 4014・4017の最小、ボルト穴径はJIS B 1001（ISO 273）です。六角穴付きボルト・フランジ付きボルト・座金の上で回すナットは、当たる面の外径を入れてください。</p>
       </div>
       <div class="box">
         <h2>摩擦係数と締付け</h2>
         <div class="fields">
           <div class="field wide"><label for="cFr">摩擦係数（ねじ面・座面）</label><select id="cFr" class="ui"></select></div>
-          <div class="field wide"><span class="lab">摩擦係数 μ　最小 〜 最大</span><div class="pair"><input type="text" id="cMu0" inputmode="decimal" aria-label="摩擦係数の最小"><input type="text" id="cMu1" inputmode="decimal" aria-label="摩擦係数の最大"></div></div>
+          <div class="field wide"><span class="lab">摩擦係数μ　最小 〜 最大</span><div class="pair"><input type="text" id="cMu0" inputmode="decimal" aria-label="摩擦係数の最小"><input type="text" id="cMu1" inputmode="decimal" aria-label="摩擦係数の最大"></div></div>
           <p class="hint wide" id="cFrNote"></p>
-          <div class="field"><label for="cNu">降伏点の利用率 ν [%]</label><input type="text" id="cNu" inputmode="decimal"></div>
+          <div class="field"><label for="cNu">降伏点の利用率ν [%]</label><input type="text" id="cNu" inputmode="decimal"></div>
           <div class="field"><label for="cSc">トルクのばらつき [±%]</label><input type="text" id="cSc" inputmode="decimal"></div>
           <div class="field wide"><span class="lab">締付けトルクの決め方</span>
             <div class="seg" id="cMode" role="group" aria-label="締付けトルクの決め方"><button type="button" data-v="target" aria-pressed="true">推奨トルクを狙い値に</button><button type="button" data-v="upper" aria-pressed="false">上限を推奨トルクに</button></div></div>
         </div>
-        <p class="hint">推奨トルクは、摩擦係数が最小のときに相当応力が降伏点の ν 倍になるトルクです（VDI 2230。ふつう ν = 90%）。トルクのばらつきは締付け工具の精度で、軸力の範囲に効きます。</p>
+        <p class="hint">推奨トルクは、摩擦係数が最小のときに相当応力が降伏点のν倍になるトルクです（VDI 2230。ふつうν = 90%）。トルクのばらつきは締付け工具の精度で、軸力の範囲に効きます。</p>
         <div class="row"><button class="btn" type="button" id="cReset">入力を消す</button></div>
       </div>
     </div>
@@ -268,18 +268,18 @@ table.tq td.na { color: var(--muted); }
         <h2>トルクと軸力</h2>
         <div class="figure" id="cFig"></div>
         <div class="legend"><span class="line" style="--c:var(--s1)">摩擦が最小</span><span class="line" style="--c:var(--s2)">摩擦が最大</span><span style="--c:var(--accent-weak)">締付けトルクの範囲</span><span class="dash" style="--c:var(--ng)">降伏する軸力</span></div>
-        <p class="hint">同じトルクでも、摩擦が小さいほど軸力が大きくなります。摩擦が最小の線が降伏する軸力に届く前に止まるトルクが、推奨トルクです。トルクの範囲（縦の帯）と 2 本の線が交わるところが、実際に出る軸力の範囲です。</p>
+        <p class="hint">同じトルクでも、摩擦が小さいほど軸力が大きくなります。摩擦が最小の線が降伏する軸力に届く前に止まるトルクが、推奨トルクです。トルクの範囲（縦の帯）と2本の線が交わるところが、実際に出る軸力の範囲です。</p>
       </div>
       <div class="box">
         <h2>トルクの内訳</h2>
         <div class="figure" id="cSplit"></div>
         <div class="legend"><span style="--c:var(--s3)">軸力になる分（ねじのリード）</span><span style="--c:var(--s1)">ねじ面の摩擦</span><span style="--c:var(--s2)">座面の摩擦</span></div>
-        <p class="hint">締めたトルクのうち軸力になるのは 1 割前後で、残りは摩擦で消えます。摩擦係数のばらつきがそのまま軸力のばらつきになるのはこのためです。</p>
+        <p class="hint">締めたトルクのうち軸力になるのは1割前後で、残りは摩擦で消えます。摩擦係数のばらつきがそのまま軸力のばらつきになるのはこのためです。</p>
       </div>
       <div class="box">
         <h2>結果</h2>
         <div class="scroll" id="cRes"></div>
-        <div class="row"><button class="btn" type="button" id="cCopy">結果をコピー（Excel 用）</button></div>
+        <div class="row"><button class="btn" type="button" id="cCopy">結果をコピー（Excel用）</button></div>
       </div>
     </div>
   </section>
@@ -299,27 +299,27 @@ table.tq td.na { color: var(--muted); }
         <div class="fields three">
           <div class="field"><label for="tGr">強度区分</label><select id="tGr"></select></div>
           <div class="field"><label for="tHole">ボルト穴</label><select id="tHole" class="ui"><option value="0">1級（精）</option><option value="1">2級（中）</option><option value="2">3級（粗）</option></select></div>
-          <div class="field"><label for="tNu">降伏点の利用率 ν [%]</label><input type="text" id="tNu" inputmode="decimal"></div>
+          <div class="field"><label for="tNu">降伏点の利用率ν [%]</label><input type="text" id="tNu" inputmode="decimal"></div>
         </div>
         <div class="scroll" id="tTable"></div>
-        <p class="hint">六角ボルト（ISO 4014・4017）の座面で、ねじ面と座面の摩擦係数を同じ値（列の μ）にしたときの値です。kgf は 1 kgf = 9.80665 N で換算しています。行を押すと、そのねじで「計算」タブを開きます。</p>
-        <div class="row"><button class="btn" type="button" id="tCopy">表をコピー（Excel 用）</button></div>
+        <p class="hint">六角ボルト（ISO 4014・4017）の座面で、ねじ面と座面の摩擦係数を同じ値（列のμ）にしたときの値です。kgfは1 kgf = 9.80665 Nで換算しています。行を押すと、そのねじで「計算」タブを開きます。</p>
+        <div class="row"><button class="btn" type="button" id="tCopy">表をコピー（Excel用）</button></div>
       </div>
     </div>
   </section>
 
-  <!-- ===== 解説（docs/explanation.md から tools/build.py で埋め込む） ===== -->
+  <!-- ===== 解説（docs/explanation.mdからtools/build.pyで埋め込む） ===== -->
   <section id="explainPanel" hidden>
     <div class="box explain">
 <!--EXPLAIN-START-->
 <h1>締付けトルク計算機の解説</h1>
-<p>ボルトのねじ・強度区分・摩擦係数から、VDI 2230 Blatt 1:2015 の方法で推奨締付けトルクと締付け軸力を求めます。メーカーのトルク表（Bossard、Würth など）の多くもこの方法で作られており、六角ボルト・2級のボルト穴・ν = 90% にすると、それらの表と同じ値になります。</p>
+<p>ボルトのねじ・強度区分・摩擦係数から、VDI 2230 Blatt 1:2015の方法で推奨締付けトルクと締付け軸力を求めます。メーカーのトルク表（Bossard、Würthなど）の多くもこの方法で作られており、六角ボルト・2級のボルト穴・ν = 90%にすると、それらの表と同じ値になります。</p>
 <h2>推奨トルクの決め方</h2>
 <ol>
-<li>摩擦係数が最小のとき、締付けで生じる引張り応力とねじり応力を合わせた相当応力が、降伏点の ν 倍になる軸力を求めます。これが<strong>許容締付け軸力</strong> FMzul です</li>
-<li>摩擦係数が最小のまま、FMzul を出すのに必要なトルクを求めます。これが<strong>推奨締付けトルク</strong> MA です</li>
+<li>摩擦係数が最小のとき、締付けで生じる引張り応力とねじり応力を合わせた相当応力が、降伏点のν倍になる軸力を求めます。これが<strong>許容締付け軸力</strong> FMzulです</li>
+<li>摩擦係数が最小のまま、FMzulを出すのに必要なトルクを求めます。これが<strong>推奨締付けトルク</strong> MAです</li>
 </ol>
-<p>摩擦係数の初期値 0.12 は、メーカーのトルク表の多くと同じ「μ を 1 つに決めた」値です。範囲を入れると推奨トルクは最小の μ で決まるので、範囲の下限を下げるほど推奨トルクも下がります。</p>
+<p>摩擦係数の初期値0.12は、メーカーのトルク表の多くと同じ「μを1つに決めた」値です。範囲を入れると推奨トルクは最小のμで決まるので、範囲の下限を下げるほど推奨トルクも下がります。</p>
 <p>摩擦係数の最小で決めるのは、同じトルクでも摩擦が小さいほど軸力が大きくなり、降伏に近づくからです。摩擦が大きい側では、同じトルクで軸力が小さくなります（下の「軸力の範囲」）。</p>
 <h3>許容締付け軸力</h3>
 <pre><code>FMzul = As × ν × Rp ÷ √(1 + 3 × [1.5 × (d2 ÷ dS) × (P ÷ (π × d2) + 1.155 × μG)]²)
@@ -327,10 +327,10 @@ table.tq td.na { color: var(--muted); }
 <ul>
 <li>As：応力断面積 = π/4 × dS²、dS =（d2 + d3）÷ 2</li>
 <li>d2：有効径 = d − 0.649519 P、d3：おねじの谷の径 = d − 1.226869 P（ISO 724）</li>
-<li>Rp：降伏点（下降伏点 ReL、0.2% 耐力 Rp0.2、または Rpf）の最小</li>
-<li>ν：降伏点の利用率。VDI 2230 ではふつう 0.9</li>
-<li>根号の中の 3 × [ ]² は、ねじりの応力を相当応力（ミーゼス）に換算した分です。ねじり応力の係数 kτ = 0.5 を入れてあり、締付け中にボルトの表面が少し降伏しても全体はもつ、という扱いです</li>
-<li>1.155 は 1 ÷ cos 30°（メートルねじのフランク角 60° の半分）で、ねじ面の摩擦係数を、ねじの軸方向に換算するための係数です</li>
+<li>Rp：降伏点（下降伏点ReL、0.2%耐力Rp0.2、またはRpf）の最小</li>
+<li>ν：降伏点の利用率。VDI 2230ではふつう0.9</li>
+<li>根号の中の3 × [ ]² は、ねじりの応力を相当応力（ミーゼス）に換算した分です。ねじり応力の係数kτ = 0.5を入れてあり、締付け中にボルトの表面が少し降伏しても全体はもつ、という扱いです</li>
+<li>1.155は1 ÷ cos 30°（メートルねじのフランク角60° の半分）で、ねじ面の摩擦係数を、ねじの軸方向に換算するための係数です</li>
 </ul>
 <h3>締付けトルクと軸力</h3>
 <pre><code>M = F × (0.16 P + 0.58 d2 μG + DKm ÷ 2 × μK)
@@ -338,11 +338,11 @@ table.tq td.na { color: var(--muted); }
 <ul>
 <li>0.16 P：ねじのリード角で軸力になる分（P ÷ 2π）</li>
 <li>0.58 d2 μG：ねじ面の摩擦（d2 ÷ 2 × 1.155 μG）</li>
-<li>DKm ÷ 2 × μK：座面の摩擦。DKm =（dw + dh）÷ 2 は座面の摩擦の有効径です</li>
-<li>μG はねじ面、μK は座面の摩擦係数です。このツールでは同じ値にしています（メーカーのトルク表と同じ）</li>
+<li>DKm ÷ 2 × μK：座面の摩擦。DKm =（dw + dh）÷ 2は座面の摩擦の有効径です</li>
+<li>μGはねじ面、μKは座面の摩擦係数です。このツールでは同じ値にしています（メーカーのトルク表と同じ）</li>
 </ul>
-<p>JIS B 1083 のトルク係数 K = T ÷（F × d）は、この式の括弧の中を呼び径で割ったものです。並目・μ 0.12 前後でおよそ 0.15〜0.18 になります。</p>
-<h3>例：M10 並目・8.8・μ 0.12・六角ボルト・2級のボルト穴</h3>
+<p>JIS B 1083のトルク係数K = T ÷（F × d）は、この式の括弧の中を呼び径で割ったものです。並目・μ 0.12前後でおよそ0.15〜0.18になります。</p>
+<h3>例：M10並目・8.8・μ 0.12・六角ボルト・2級のボルト穴</h3>
 <table>
 <thead>
 <tr>
@@ -381,22 +381,22 @@ table.tq td.na { color: var(--muted); }
 </tr>
 </tbody>
 </table>
-<p>メーカーの表（VDI 2230:2015）の値は 29.6 kN・48 N·m で、計算値を表の桁に丸めると一致します。</p>
+<p>メーカーの表（VDI 2230:2015）の値は29.6 kN・48 N·mで、計算値を表の桁に丸めると一致します。</p>
 <h2>軸力の範囲</h2>
 <p>同じトルクで締めても、軸力は摩擦係数とトルクのばらつきで変わります。</p>
 <ul>
 <li>最大の軸力：トルクが上限、摩擦が最小</li>
 <li>最小の軸力：トルクが下限、摩擦が最大</li>
 </ul>
-<p>締めたトルクのうち軸力になるのは 1 割前後で、残りはねじ面と座面の摩擦で消えます。摩擦係数が 0.08〜0.16 と倍違うと、軸力もほぼ倍違います。最大 ÷ 最小は VDI 2230 の<strong>締付け係数 αA</strong> に当たり、トルクで締めるときは 1.4〜1.8 程度がふつうです。軸力を揃えたいときは、摩擦の範囲を狭める（表面処理と潤滑を決める）のが一番効きます。</p>
+<p>締めたトルクのうち軸力になるのは1割前後で、残りはねじ面と座面の摩擦で消えます。摩擦係数が0.08〜0.16と倍違うと、軸力もほぼ倍違います。最大 ÷ 最小はVDI 2230の<strong>締付け係数αA</strong> に当たり、トルクで締めるときは1.4〜1.8程度がふつうです。軸力を揃えたいときは、摩擦の範囲を狭める（表面処理と潤滑を決める）のが一番効きます。</p>
 <h3>トルクのばらつきと決め方</h3>
 <ul>
-<li><strong>推奨トルクを狙い値に</strong>：メーカーのトルク表と同じです。トルクが上にばらつくと、降伏点の利用率が ν を少し超えます（±5% なら 90% → 約 95%）。VDI 2230 の ν = 0.9 は、この程度の上ぶれを見込んだ値です</li>
-<li><strong>上限を推奨トルクに</strong>：狙い値を MA ÷（1 + ばらつき）に下げます。上にばらついても ν を超えませんが、軸力の下限も下がります</li>
+<li><strong>推奨トルクを狙い値に</strong>：メーカーのトルク表と同じです。トルクが上にばらつくと、降伏点の利用率がνを少し超えます（±5%なら90% → 約95%）。VDI 2230のν = 0.9は、この程度の上ぶれを見込んだ値です</li>
+<li><strong>上限を推奨トルクに</strong>：狙い値をMA ÷（1 + ばらつき）に下げます。上にばらついてもνを超えませんが、軸力の下限も下がります</li>
 </ul>
-<p>トルクのばらつきは、締付け工具の精度（トルクレンチの JIS B 4650 / ISO 6789 の許容差、ナットランナーの工程能力）を入れてください。</p>
+<p>トルクのばらつきは、締付け工具の精度（トルクレンチのJIS B 4650 / ISO 6789の許容差、ナットランナーの工程能力）を入れてください。</p>
 <h2>単位</h2>
-<p>トルクは N·m・kgf·cm・kgf·m、軸力は kN・kgf で表示できます。1 kgf = 9.80665 N で換算しています（1 kgf·m = 9.80665 N·m、1 kgf·cm = 0.0980665 N·m）。</p>
+<p>トルクはN·m・kgf·cm・kgf·m、軸力はkN・kgfで表示できます。1 kgf = 9.80665 Nで換算しています（1 kgf·m = 9.80665 N·m、1 kgf·cm = 0.0980665 N·m）。</p>
 <h2>強度区分と降伏点</h2>
 <table>
 <thead>
@@ -409,7 +409,7 @@ table.tq td.na { color: var(--muted); }
 <tbody>
 <tr>
 <td>4.6 / 5.6</td>
-<td>240 / 300（下降伏点 ReL）</td>
+<td>240 / 300（下降伏点ReL）</td>
 <td>ISO 898-1（JIS B 1051）</td>
 </tr>
 <tr>
@@ -419,12 +419,12 @@ table.tq td.na { color: var(--muted); }
 </tr>
 <tr>
 <td>8.8</td>
-<td>640（16 mm 以下）/ 660（16 mm を超える）</td>
+<td>640（16 mm以下）/ 660（16 mmを超える）</td>
 <td>ISO 898-1</td>
 </tr>
 <tr>
 <td>9.8</td>
-<td>720（16 mm 以下だけ）</td>
+<td>720（16 mm以下だけ）</td>
 <td>ISO 898-1</td>
 </tr>
 <tr>
@@ -440,11 +440,11 @@ table.tq td.na { color: var(--muted); }
 </tbody>
 </table>
 <ul>
-<li>Rpf は、ボルトの製品で引張試験をしたときの、永久伸び 0.0048d での応力です。4.8・5.8・6.8 には明確な降伏点がないため、この値を使います</li>
-<li>ステンレスの -70・-80 は呼び径 24 mm 以下で規定されています。それを超える径は「範囲外」と表示します（ISO 3506-1:2020 の改正で範囲が変わっている可能性があります。使う径の規格の版を確かめてください）</li>
+<li>Rpfは、ボルトの製品で引張試験をしたときの、永久伸び0.0048dでの応力です。4.8・5.8・6.8には明確な降伏点がないため、この値を使います</li>
+<li>ステンレスの -70・-80は呼び径24 mm以下で規定されています。それを超える径は「範囲外」と表示します（ISO 3506-1:2020の改正で範囲が変わっている可能性があります。使う径の規格の版を確かめてください）</li>
 </ul>
 <h2>摩擦係数</h2>
-<p>VDI 2230 Blatt 1 の表 A5 は、摩擦係数を次の区分に分けています。例は目安で、同じ表面処理でも潤滑剤や相手材、締める回数で大きく変わります。</p>
+<p>VDI 2230 Blatt 1の表A5は、摩擦係数を次の区分に分けています。例は目安で、同じ表面処理でも潤滑剤や相手材、締める回数で大きく変わります。</p>
 <table>
 <thead>
 <tr>
@@ -477,19 +477,19 @@ table.tq td.na { color: var(--muted); }
 </tbody>
 </table>
 <ul>
-<li>量産品で摩擦係数を指定するときは、ボルトメーカーが保証する範囲（例：亜鉛フレークで 0.09〜0.14）を入れるのが確実です</li>
-<li>実測するときは JIS B 1084（ISO 16047）の締付け試験で、ねじ面と座面の摩擦係数を分けて測れます</li>
+<li>量産品で摩擦係数を指定するときは、ボルトメーカーが保証する範囲（例：亜鉛フレークで0.09〜0.14）を入れるのが確実です</li>
+<li>実測するときはJIS B 1084（ISO 16047）の締付け試験で、ねじ面と座面の摩擦係数を分けて測れます</li>
 <li>同じボルトを締め直すと、表面がならされて摩擦係数が変わります。再使用するボルトは注意が必要です</li>
 </ul>
 <h2>座面とボルト穴</h2>
 <ul>
-<li>六角ボルトの座面の径 dw は ISO 4014・ISO 4017 の最小（M24 以下は部品等級 A、M27 以上は B）を使います。細目ねじの六角ボルト（ISO 8765）も同じ頭部です</li>
-<li>ボルト穴径は JIS B 1001（ISO 273）の 1 級（精）・2 級（中）・3 級（粗）です。メーカーのトルク表は 2 級で計算されています</li>
+<li>六角ボルトの座面の径dwはISO 4014・ISO 4017の最小（M24以下は部品等級A、M27以上はB）を使います。細目ねじの六角ボルト（ISO 8765）も同じ頭部です</li>
+<li>ボルト穴径はJIS B 1001（ISO 273）の1級（精）・2級（中）・3級（粗）です。メーカーのトルク表は2級で計算されています</li>
 <li>六角穴付きボルト（ISO 4762）、フランジ付きボルト、座金を挟んでナットを回すときは、回る面が当たる外径を「座面の径」に入れてください。座面が大きいほど座面の摩擦が増え、同じ軸力に要るトルクが大きくなります</li>
-<li>JIS の六角ボルト（JIS B 1180 附属書）は、M10・M12・M14・M22 で二面幅が ISO と違う（17・19・22・32 mm）ものがあります。その場合も座面の径を入れ直してください</li>
+<li>JISの六角ボルト（JIS B 1180附属書）は、M10・M12・M14・M22で二面幅がISOと違う（17・19・22・32 mm）ものがあります。その場合も座面の径を入れ直してください</li>
 </ul>
 <h2>確かめていないこと</h2>
-<p>このツールは、ボルトそのものが降伏しない締付けトルクを出します。次のことは確かめていないので、必要に応じて VDI 2230 の計算や試験で確かめてください。</p>
+<p>このツールは、ボルトそのものが降伏しない締付けトルクを出します。次のことは確かめていないので、必要に応じてVDI 2230の計算や試験で確かめてください。</p>
 <ul>
 <li><strong>めねじ（ナット・タップ穴）の強度</strong>：ナットの強度区分がボルトに合っているか、アルミや鋳鉄のタップ穴でねじ山がせん断しないはめあい長さがあるか</li>
 <li><strong>座面の面圧</strong>：被締結物（特にアルミ・樹脂・塗装面）が座面でへこまないか。へこむと締めた後に軸力が落ちます</li>
@@ -500,7 +500,7 @@ table.tq td.na { color: var(--muted); }
 </ul>
 <h2>注意</h2>
 <ul>
-<li>12.9 に電気めっきをすると、水素ぜい化で締めてから数時間〜数日後に破断することがあります。10.9 でも条件によって起きます。めっきの種類とベーキングの有無を確かめてください</li>
+<li>12.9に電気めっきをすると、水素ぜい化で締めてから数時間〜数日後に破断することがあります。10.9でも条件によって起きます。めっきの種類とベーキングの有無を確かめてください</li>
 <li>ステンレスは潤滑しないとかじり（焼付き）やすく、締めている途中で回らなくなったり、ねじが破損したりします。潤滑剤を使うか、ナットの材質を変えるのが一般的です</li>
 <li>図面・仕様書・顧客の規格に締付けトルクの指定があるときは、そちらを優先してください</li>
 </ul>
